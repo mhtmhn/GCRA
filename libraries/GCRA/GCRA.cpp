@@ -25,6 +25,13 @@ servo_6_pin=pin_6;
 
 void GCRA::init()
 {
+servo_0.attach(servo_0_pin,std_ms_min,std_ms_max);
+servo_1.attach(servo_1_pin,std_ms_min,std_ms_max);
+servo_2.attach(servo_2_pin,std_ms_min,std_ms_max);
+servo_3.attach(servo_3_pin,std_ms_min,std_ms_max);
+servo_4.attach(servo_4_pin,std_ms_min,std_ms_max);
+servo_5.attach(servo_5_pin,mini_ms_min,mini_ms_max);
+servo_6.attach(servo_6_pin,mini_ms_min,mini_ms_max);
 }
 
 void GCRA::config(int servo_dps,int servo_delay)

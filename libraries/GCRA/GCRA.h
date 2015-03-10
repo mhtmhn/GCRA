@@ -18,8 +18,9 @@ class GCRA
 {
 private:
 Servo servo_0,servo_1,servo_2,servo_3,servo_4,servo_5,servo_6;
-int cfg_dps,cfg_delay;
+int servo_0_pin,servo_1_pin,servo_2_pin,servo_3_pin,servo_4_pin,servo_5_pin,servo_6_pin,cfg_dps,cfg_delay;
 public:
+void GCRA(int,int,int,int,int,int,int);
 void init();
 void config(int,int);	//(servo deg/step,delay)
 void actuate(int,int);		//(part to actuate,angle to snap to)

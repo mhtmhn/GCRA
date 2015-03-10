@@ -12,7 +12,7 @@ someone else as it did to you!
 */
 #include<GCRA.h>
 
-void GCRA::GCRA(int pin_0,int pin_1,int pin_2,int pin_3,int pin_4,int pin_5,int pin_6)
+GCRA::GCRA(int pin_0,int pin_1,int pin_2,int pin_3,int pin_4,int pin_5,int pin_6)
 {
 servo_0_pin=pin_0;
 servo_1_pin=pin_1;

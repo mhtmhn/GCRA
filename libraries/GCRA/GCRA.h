@@ -24,7 +24,7 @@ int s_pin_0,s_pin_1,s_pin_2,s_pin_3,s_pin_4,s_pin_5,s_pin_6;
 int std_us_min,std_us_max,mini_us_min,mini_us_max,cfg_dps,cfg_delay,cfg_base_offset;
 public:
 GCRA(int,int,int,int,int,int,int);//object parameters initialize servo pins for servo0-6(5+2(mini) servos)
-void cfg(int,int,int);	//(servo deg/step,delay in milliseconds,offset servo_2 by given value to match servo_1 as they share same DOF (default:0))
+void cfg(int,int,int);	//(servo deg/step,delay in milliseconds,offset servo_2 by given value(in degrees)to match servo_1 as they share same DOF (default:0))
 void servocfg(int,int,int,int);//configure servo pulse width in micro seconds ;init(standard servo min,standard servo max,mini servo min,mini servo max)
 void init(int,int,int,int,int,int,int);//initialize with 7 predefined angles for robotic arm
 void actuate(int,int);		//(part to actuate,angle to snap to)

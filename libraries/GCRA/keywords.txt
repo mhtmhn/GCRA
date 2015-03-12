@@ -20,3 +20,9 @@ actuate	KEYWORD2
 #######################################
 # Constants (LITERAL1)
 #######################################
+waist	LITERAL1
+shoulder	LITERAL1
+elbow	LITERAL1
+wrist_p	LITERAL1
+wrist_r	LITERAL1
+tool	LITERAL1

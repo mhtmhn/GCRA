@@ -23,10 +23,11 @@ s_pin_5=pin_5;
 s_pin_6=pin_6;
 }
 
-void GCRA::cfg(int servo_dps,int servo_delay)
+void GCRA::cfg(int servo_dps,int servo_delay,int servo_offset=0)
 {
 cfg_dps=servo_dps;
 cfg_delay=servo_delay;
+cfg_base_offset=servo_offset;
 }
 
 void GCRA::servocfg(int std_min,int std_max,int mini_min,int mini_max)
@@ -63,4 +64,5 @@ servo_6.write(a_6);delay(cfg_delay);
 
 void GCRA::actuate(int arm_part,int arm_angle)
 {
+
 }

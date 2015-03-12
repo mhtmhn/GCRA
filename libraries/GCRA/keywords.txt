@@ -11,8 +11,9 @@ GCRA	KEYWORD1
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
+cfg	KEYWORD2
+servocfg	KEYWORD2
 init	KEYWORD2
-config	KEYWORD2
 actuate	KEYWORD2
 
 #######################################

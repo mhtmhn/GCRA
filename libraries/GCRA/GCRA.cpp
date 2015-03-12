@@ -14,30 +14,46 @@ someone else as it did to you!
 
 GCRA::GCRA(int pin_0,int pin_1,int pin_2,int pin_3,int pin_4,int pin_5,int pin_6)
 {
-servo_0_pin=pin_0;
-servo_1_pin=pin_1;
-servo_2_pin=pin_2;
-servo_3_pin=pin_3;
-servo_4_pin=pin_4;
-servo_5_pin=pin_5;
-servo_6_pin=pin_6;
+servo_0.attach(pin_0,std_us_min,std_us_max);
+servo_1.attach(pin_1,std_us_min,std_us_max);
+servo_2.attach(pin_2,std_us_min,std_us_max);
+servo_3.attach(pin_3,std_us_min,std_us_max);
+servo_4.attach(pin_4,std_us_min,std_us_max);
+servo_5.attach(pin_5,mini_us_min,mini_us_max);
+servo_6.attach(pin_6,mini_us_min,mini_us_max);
 }
 
-void GCRA::init()
+void GCRA::cfg(int servo_dps,int servo_delay)
 {
-servo_0.attach(servo_0_pin,std_ms_min,std_ms_max);
-servo_1.attach(servo_1_pin,std_ms_min,std_ms_max);
-servo_2.attach(servo_2_pin,std_ms_min,std_ms_max);
-servo_3.attach(servo_3_pin,std_ms_min,std_ms_max);
-servo_4.attach(servo_4_pin,std_ms_min,std_ms_max);
-servo_5.attach(servo_5_pin,mini_ms_min,mini_ms_max);
-servo_6.attach(servo_6_pin,mini_ms_min,mini_ms_max);
+cfg_dps=servo_dps;
+cfg_delay=servo_delay;
 }
 
-void GCRA::config(int servo_dps,int servo_delay)
+void GCRA::servocfg(int std_min,int std_max,int mini_min,int mini_max)
 {
-servo_dps=cfg_dps;
-servo_delay=cfg_delay;
+std_us_min=std_min;
+std_us_max=std_max;
+mini_us_min=mini_min;
+mini_us_max=mini_max;
+}
+
+void GCRA::init(int a_0,int a_1,int a_2,int a_3,int a_4,int a_5,int a_6)
+{
+
+servo_0.write(a_0);
+delay(cfg_delay);
+servo_1.write(a_1);
+delay(cfg_delay);
+servo_2.write(a_2);
+delay(cfg_delay);
+servo_3.write(a_3);
+delay(cfg_delay);
+servo_4.write(a_4);
+delay(cfg_delay);
+servo_5.write(a_5);
+delay(cfg_delay);
+servo_6.write(a_6);
+delay(cfg_delay);
 }
 
 void GCRA::actuate(int arm_part,int arm_angle)

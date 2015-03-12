@@ -20,6 +20,7 @@ class GCRA
 {
 private:
 Servo servo_0,servo_1,servo_2,servo_3,servo_4,servo_5,servo_6;
+int s_pin_0,s_pin_1,s_pin_2,s_pin_3,s_pin_4,s_pin_5,s_pin_6;
 int std_us_min,std_us_max,mini_us_min,mini_us_max,cfg_dps,cfg_delay;
 public:
 GCRA(int,int,int,int,int,int,int);//object parameters initialize servo pins for servo0-6(5+2(mini) servos)

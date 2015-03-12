@@ -53,22 +53,16 @@ void GCRA::init(int a_0,int a_1,int a_2,int a_3,int a_4,int a_5,int a_6)
 {
 	servo_0.attach(s_pin_0,std_us_min,std_us_max);
 	servo_0.write(a_0);delay(cfg_delay);
-	
 	servo_1.attach(s_pin_1,std_us_min,std_us_max);
 	servo_1.write(a_1);delay(cfg_delay);
-	
 	servo_2.attach(s_pin_2,std_us_min,std_us_max);
 	servo_2.write(a_2);delay(cfg_delay);
-	
 	servo_3.attach(s_pin_3,std_us_min,std_us_max);
 	servo_3.write(a_3);delay(cfg_delay);
-	
 	servo_4.attach(s_pin_4,std_us_min,std_us_max);
 	servo_4.write(a_4);delay(cfg_delay);
-	
 	servo_5.attach(s_pin_5,mini_us_min,mini_us_max);
 	servo_5.write(a_5);delay(cfg_delay);
-	
 	servo_6.attach(s_pin_6,mini_us_min,mini_us_max);
 	servo_6.write(a_6);delay(cfg_delay);
 }
@@ -106,24 +100,130 @@ void GCRA::actuate(int arm_part,int arm_angle,bool inv)
 		break;
 		
 		case 1:
-		
+		if(inv)
+		{
+			set_angle=180-set_angle;
+		}
+		if (set_angle>180-cfg_base_offset)
+		{
+			set_angle=180-cfg_base_offset;
+		}
+		cur_angle=servo_1.read();
+		if(set_angle<cur_angle)
+		{
+			for(int i=cur_angle;i>=set_angle;i-=cfg_dps)
+			{
+				servo_1.write(i);
+				servo_2.write(i+cfg_base_offset);
+				delay(cfg_delay);
+			}
+		}
+		else
+		{
+			for(int i=cur_angle;i<=set_angle;i+=cfg_dps)
+			{
+				servo_1.write(i);
+				servo_2.write(i+cfg_base_offset);
+				delay(cfg_delay);
+			}
+		}
 		break;
 		
 		case 2:
-		
+		if(inv)
+		{
+			set_angle=180-set_angle;
+		}
+		cur_angle=servo_3.read();
+		if(set_angle<cur_angle)
+		{
+			for(int i=cur_angle;i>=set_angle;i-=cfg_dps)
+			{
+				servo_3.write(i);
+				delay(cfg_delay);
+			}
+		}
+		else
+		{
+			for(int i=cur_angle;i<=set_angle;i+=cfg_dps)
+			{
+				servo_3.write(i);
+				delay(cfg_delay);
+			}
+		}
 		break;
 		
 		case 3:
-		
+		if(inv)
+		{
+			set_angle=180-set_angle;
+		}
+		cur_angle=servo_4.read();
+		if(set_angle<cur_angle)
+		{
+			for(int i=cur_angle;i>=set_angle;i-=cfg_dps)
+			{
+				servo_4.write(i);
+				delay(cfg_delay);
+			}
+		}
+		else
+		{
+			for(int i=cur_angle;i<=set_angle;i+=cfg_dps)
+			{
+				servo_4.write(i);
+				delay(cfg_delay);
+			}
+		}
 		break;
 		
 		case 4:
-		
+		if(inv)
+		{
+			set_angle=180-set_angle;
+		}
+		cur_angle=servo_5.read();
+		if(set_angle<cur_angle)
+		{
+			for(int i=cur_angle;i>=set_angle;i-=cfg_dps)
+			{
+				servo_5.write(i);
+				delay(cfg_delay);
+			}
+		}
+		else
+		{
+			for(int i=cur_angle;i<=set_angle;i+=cfg_dps)
+			{
+				servo_5.write(i);
+				delay(cfg_delay);
+			}
+		}
 		break;
 		
 		case 5:
-		
+		if(inv)
+		{
+			set_angle=180-set_angle;
+		}
+		cur_angle=servo_6.read();
+		if(set_angle<cur_angle)
+		{
+			for(int i=cur_angle;i>=set_angle;i-=cfg_dps)
+			{
+				servo_6.write(i);
+				delay(cfg_delay);
+			}
+		}
+		else
+		{
+			for(int i=cur_angle;i<=set_angle;i+=cfg_dps)
+			{
+				servo_6.write(i);
+				delay(cfg_delay);
+			}
+		}
 		break;
 		
 	}
-	}
+}

@@ -14,9 +14,9 @@
 //just put the right pulse width in micro seconds in servocfg() described below to make this happen smoothly.
 //note D:X means X is default value
 #ifndef _GCRA_H_
-	#define _GCRA_H_
-	#include<Arduino.h>
-	#include<Servo.h>
+#define _GCRA_H_
+#include<Arduino.h>
+#include<Servo.h>
 //Literals
 #define waist 0	//parts of robotic arm. Note:wrist_p=wrist pitch,wrist_r=wrist roll in actuate()
 #define shoulder 1

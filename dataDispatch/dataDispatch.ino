@@ -30,42 +30,116 @@ float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gra
 volatile bool mpuInterrupt = false;	// indicates whether MPU interrupt pin has gone high
 void dmpDataReady() 
 {
-mpuInterrupt = true;
+	mpuInterrupt = true;
 }
 
 //nRF24L01+
 const uint64_t address = 0xABCDABCD71LL;
-	RF24 radio(9,8);//(CE,CSN)
-	boolean sent;
-	struct packet
-	{
-		float y,p,r;
-		int fx,fy,fz;
-	}dispatch;
+RF24 radio(9,8);//(CE,CSN)
+boolean sent;
+struct packet
+{
+	float y,p,r;
+	int fx,fy,fz;
+}dispatch;
+
+void setup() 
+{
+	#ifdef dbug
+	Serial.begin(115200);
+	while (!Serial); // wait for Leonardo enumeration, others continue immediately
+	#endif
 	
-	void setup() 
+	//Flex
+	dispatch.fx=0;
+	dispatch.fy=0;
+	dispatch.fz=0;
+	
+	//nRF24L01+
+	radio.begin();
+	radio.setPALevel(RF24_PA_MAX);
+	radio.setDataRate(RF24_2MBPS);
+	radio.setAutoAck(1);
+	radio.setRetries(1,10);
+	radio.setCRCLength(RF24_CRC_8);
+	
+	Wire.begin();
+	TWBR = 24;
+	boolean error = true;
+	while (error) 
 	{
+		Wire.beginTransmission(104);
+		error = Wire.endTransmission(); // if error = 0, we are properly connected
+		if (error) 
+		{ // if we aren't properly connected, try connecting again and loop
+			#ifdef dbug
+			Serial.println("Not properly connected to I2C, trying again");
+			#endif
+			Wire.begin();
+			TWBR = 24; // 400kHz I2C clock
+		}
+	}
+	#ifdef dbug
+	Serial.println("Properly connected to I2C");
+	// initialize device
+	Serial.println(F("Initializing I2C devices..."));
+	#endif
+	mpu.initialize();
+	#ifdef dbug
+	// verify connection
+	Serial.println(F("Testing device connections..."));
+	Serial.println(mpu.testConnection() ? F("MPU6050 connection successful") : F("MPU6050 connection failed"));
+	// load and configure the DMP
+	Serial.println(F("Initializing DMP..."));
+	#endif
+	devStatus = mpu.dmpInitialize();
+	
+	if (devStatus == 0) 
+	{
+		// turn on the DMP, now that it's ready
 		#ifdef dbug
-		Serial.begin(115200);
-		while (!Serial); // wait for Leonardo enumeration, others continue immediately
+		Serial.println(F("Enabling DMP..."));
+		#endif
+		mpu.setDMPEnabled(true);
+		
+		// enable Arduino interrupt detection
+		#ifdef dbug
+		Serial.println(F("Enabling interrupt detection (Arduino external int.4)..."));
 		#endif
 		
-		//Flex
-		dispatch.fx=0;
-		dispatch.fy=0;
-		dispatch.fz=0;
+		attachInterrupt(4, dmpDataReady, RISING);
+		mpuIntStatus = mpu.getIntStatus();
 		
-		//nRF24L01+
-		radio.begin();
-		radio.setPALevel(RF24_PA_MAX);
-		radio.setDataRate(RF24_2MBPS);
-		radio.setAutoAck(1);
-		radio.setRetries(2,15);
-		radio.setCRCLength(RF24_CRC_8);
-		radio.openWritingPipe(address);
+		// set our DMP Ready flag so the main loop() function knows it's okay to use it
+		#ifdef dbug
+		Serial.println(F("DMP ready! Waiting for first interrupt..."));
+		#endif
+		dmpReady = true;
 		
-		Wire.begin();
-		TWBR = 24;
+		// get expected DMP packet size for later comparison
+		packetSize = mpu.dmpGetFIFOPacketSize();
+	} 
+	#ifdef dbug
+	else 
+	{
+		// ERROR!
+		// 1 = initial memory load failed
+		// 2 = DMP configuration updates failed
+		// (if it's going to break, usually the code will be 1)
+		Serial.print(F("DMP Initialization failed (code "));
+		Serial.print(devStatus);
+		Serial.println(F(")"));
+	}
+	#endif
+}
+
+void loop() 
+{
+	if (!dmpReady) return;
+	
+	while (!mpuInterrupt && fifoCount < packetSize) 
+	{	
+                //Ensure Connection while waiting...
 		boolean error = true;
 		while (error) 
 		{
@@ -73,120 +147,53 @@ const uint64_t address = 0xABCDABCD71LL;
 			error = Wire.endTransmission(); // if error = 0, we are properly connected
 			if (error) 
 			{ // if we aren't properly connected, try connecting again and loop
-				#ifdef dbug
-				Serial.println("Not properly connected to I2C, trying again");
-				#endif
 				Wire.begin();
 				TWBR = 24; // 400kHz I2C clock
 			}
 		}
-		#ifdef dbug
-		Serial.println("Properly connected to I2C");
-		// initialize device
-		Serial.println(F("Initializing I2C devices..."));
-		#endif
-		mpu.initialize();
-		#ifdef dbug
-		// verify connection
-		Serial.println(F("Testing device connections..."));
-		Serial.println(mpu.testConnection() ? F("MPU6050 connection successful") : F("MPU6050 connection failed"));
-		// load and configure the DMP
-		Serial.println(F("Initializing DMP..."));
-		#endif
-		devStatus = mpu.dmpInitialize();
-		
-		if (devStatus == 0) 
-		{
-			// turn on the DMP, now that it's ready
-			#ifdef dbug
-			Serial.println(F("Enabling DMP..."));
-			#endif
-			mpu.setDMPEnabled(true);
-			
-			// enable Arduino interrupt detection
-			#ifdef dbug
-			Serial.println(F("Enabling interrupt detection (Arduino external int.4)..."));
-			#endif
-			
-			attachInterrupt(4, dmpDataReady, RISING);
-			mpuIntStatus = mpu.getIntStatus();
-			
-			// set our DMP Ready flag so the main loop() function knows it's okay to use it
-			#ifdef dbug
-			Serial.println(F("DMP ready! Waiting for first interrupt..."));
-			#endif
-			dmpReady = true;
-			
-			// get expected DMP packet size for later comparison
-			packetSize = mpu.dmpGetFIFOPacketSize();
-		} 
-		#ifdef dbug
-		else 
-		{
-			// ERROR!
-			// 1 = initial memory load failed
-			// 2 = DMP configuration updates failed
-			// (if it's going to break, usually the code will be 1)
-			Serial.print(F("DMP Initialization failed (code "));
-			Serial.print(devStatus);
-			Serial.println(F(")"));
-		}
-		#endif
 	}
+	mpuInterrupt = false;
+	mpuIntStatus = mpu.getIntStatus();
+	fifoCount = mpu.getFIFOCount();
 	
-	void loop() 
+	if ((mpuIntStatus & 0x10) || fifoCount == 1024) 
 	{
-		if (!dmpReady) return;
+		#ifdef dbug
+		Serial.println(F("FIFO overflow!"));
+		Serial.println(F("Purging!"));	
+		#endif
+		mpu.resetFIFO();		
+	} 
+	else if (mpuIntStatus & 0x02) 
+	{
+		while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
+		mpu.getFIFOBytes(fifoBuffer, packetSize);
+		fifoCount -= packetSize;
+		mpu.dmpGetQuaternion(&q, fifoBuffer);
+		mpu.dmpGetGravity(&gravity, &q);
+		mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+		dispatch.y=ypr[0];
+		dispatch.p=ypr[1];
+		dispatch.r=ypr[2];
 		
-		while (!mpuInterrupt && fifoCount < packetSize) 
-		{	
-			boolean error = true;
-			while (error) 
-			{
-				Wire.beginTransmission(104);
-				error = Wire.endTransmission(); // if error = 0, we are properly connected
-				if (error) 
-				{ // if we aren't properly connected, try connecting again and loop
-					Wire.begin();
-					TWBR = 24; // 400kHz I2C clock
-				}
-			}
-			//Flex
-			dispatch.fx=analogRead(A0);
-			dispatch.fy=analogRead(A1);
-			dispatch.fz=analogRead(A2);
-			
-			//nRF24L01+
-			radio.stopListening();
-			sent=radio.writeFast( &dispatch, sizeof(dispatch) );
-		}
-		mpuInterrupt = false;
-		mpuIntStatus = mpu.getIntStatus();
-		fifoCount = mpu.getFIFOCount();
+		//Flex
+		dispatch.fx=analogRead(A0);
+		delayMicroseconds(100);
+		dispatch.fy=analogRead(A1);
+		delayMicroseconds(100);
+		dispatch.fz=analogRead(A2);
+		delayMicroseconds(100);
 		
-		if ((mpuIntStatus & 0x10) || fifoCount == 1024) 
-		{
-			#ifdef dbug
-			Serial.println(F("FIFO overflow!"));
-			Serial.println(F("Purging!"));	
-			#endif
-			mpu.resetFIFO();		
-		} 
-		else if (mpuIntStatus & 0x02) 
-		{
-			while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
-			mpu.getFIFOBytes(fifoBuffer, packetSize);
-			fifoCount -= packetSize;
-			mpu.dmpGetQuaternion(&q, fifoBuffer);
-			mpu.dmpGetGravity(&gravity, &q);
-			mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-			dispatch.y=ypr[0];
-			dispatch.p=ypr[1];
-			dispatch.r=ypr[2];
-			#ifdef dbug
-			Serial.print(dispatch.y); Serial.print(" ");
-			Serial.print(dispatch.p); Serial.print(" ");
-			Serial.println(dispatch.r);
-			#endif
-		}
+		//nRF24L01+
+		radio.openWritingPipe(address);
+		radio.stopListening();
+		sent=radio.writeFast( &dispatch, sizeof(dispatch) );
+		delayMicroseconds(3500);
+                #ifdef dbug
+		Serial.print(dispatch.y); Serial.print(" ");
+		Serial.print(dispatch.p); Serial.print(" ");
+		Serial.println(dispatch.r);
+		#endif
+                mpu.resetFIFO();
 	}
+}

@@ -29,12 +29,12 @@ void setup()
   radio.setDataRate(RF24_2MBPS);
   radio.setAutoAck(1);
   radio.setCRCLength(RF24_CRC_8);
-  radio.openReadingPipe(1,address);
 }
 
 void loop() 
 {
   //nRF24L01+
+  radio.openReadingPipe(1,address);
   radio.startListening();
   if (radio.available()) 
     {

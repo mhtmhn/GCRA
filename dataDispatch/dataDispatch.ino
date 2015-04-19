@@ -188,7 +188,7 @@ void loop()
 		radio.openWritingPipe(address);
 		radio.stopListening();
 		sent=radio.writeFast( &dispatch, sizeof(dispatch) );
-		delayMicroseconds(3500);
+		delayMicroseconds(500);
                 #ifdef dbug
 		Serial.print(dispatch.y); Serial.print(" ");
 		Serial.print(dispatch.p); Serial.print(" ");

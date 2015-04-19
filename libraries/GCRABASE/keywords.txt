@@ -1,0 +1,24 @@
+#######################################
+# Syntax Colouring Map GCRA
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+GCRABASE	KEYWORD1
+base	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+move	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+forward	LITERAL1
+backward	LITERAL1
+right	LITERAL1
+left	LITERAL1
+brake	LITERAL1

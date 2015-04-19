@@ -68,27 +68,23 @@ void mode2()
   if(intercept.p>0.1)
   {
     delay_val=mapit(intercept.p,0.1,1.5,220,50);
-    base.move(left,delay_val); 
-    //delay(map(intercept.p,0,1.5,1000,0));   
+    base.move(left,delay_val);  
   }
   else if(intercept.p<-0.6)
   {
     delay_val=mapit(intercept.p,-0.6,-1.5,220,50);
     base.move(right,delay_val);
-    //delay(map(intercept.p,0,-1.5,1000,0));    
   }
   else if(intercept.r>0.5)
   {
     delay_val=mapit(intercept.r,0.5,1.5,220,50);
-    base.move(backward,delay_val); 
-    //delay(map(intercept.p,0,1.5,1000,0));   
+    base.move(backward,delay_val);  
   }
   else if(intercept.r<-0.5)
   {
     delay_val=mapit(intercept.r,-0.5,-1.5,220,50);
     base.move(forward,delay_val);  
    Serial.println(delay_val); 
-    //delay(map(intercept.p,0,-1.5,1000,0)); 
   }
   else
   {

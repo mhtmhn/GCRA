@@ -7,6 +7,9 @@
 //RF24 by TMRh20 https://tmrh20.github.io/RF24
 #include <RF24.h>
 
+//GCRABASE by S1N1S73R
+#include <GCRABASE.h>
+
 //nRF24L01+
 const uint64_t address = 0xABCDABCD71LL;
 RF24 radio(9,8);//(CE,CSN)
@@ -16,7 +19,11 @@ struct packet
   int fx,fy,fz;
 }intercept;
 
-void setup() 
+//GCRABASE
+GCRABASE base;
+int delay_val;
+
+void setup()
 {
   //Debug
   #ifdef dbug
@@ -50,5 +57,46 @@ void loop()
       Serial.print(intercept.fy); Serial.print(" ");
       Serial.print(intercept.fz); Serial.print(" ");
       Serial.println();
-  #endif
+  #endif  
+  
+  //Mode 2
+  mode2();
+}
+
+void mode2()
+{
+  if(intercept.p>0.1)
+  {
+    delay_val=mapit(intercept.p,0.1,1.5,220,50);
+    base.move(left,delay_val); 
+    //delay(map(intercept.p,0,1.5,1000,0));   
+  }
+  else if(intercept.p<-0.6)
+  {
+    delay_val=mapit(intercept.p,-0.6,-1.5,220,50);
+    base.move(right,delay_val);
+    //delay(map(intercept.p,0,-1.5,1000,0));    
+  }
+  else if(intercept.r>0.5)
+  {
+    delay_val=mapit(intercept.r,0.5,1.5,220,50);
+    base.move(backward,delay_val); 
+    //delay(map(intercept.p,0,1.5,1000,0));   
+  }
+  else if(intercept.r<-0.5)
+  {
+    delay_val=mapit(intercept.r,-0.5,-1.5,220,50);
+    base.move(forward,delay_val);  
+   Serial.println(delay_val); 
+    //delay(map(intercept.p,0,-1.5,1000,0)); 
+  }
+  else
+  {
+    base.move(brake);
+  }
+}
+
+float mapit(float x, float in_min, float in_max, float out_min, float out_max)
+{
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }

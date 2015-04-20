@@ -173,8 +173,8 @@ void loop()
 		mpu.dmpGetGravity(&gravity, &q);
 		mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
 		dispatch.y=ypr[0];
-		dispatch.p=ypr[1];
-		dispatch.r=ypr[2];
+		dispatch.p=ypr[2];
+		dispatch.r=ypr[1];
 		
 		//Flex
 		dispatch.fx=analogRead(A0);

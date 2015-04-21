@@ -16,15 +16,19 @@
 
 //nRF24L01+
 const uint64_t address = 0xABCDABCD71LL;
-RF24 radio(9, 8); //(CE,CSN)
+RF24 radio(7, 8); //(CE,CSN)
 struct packet
 {
   float y, p, r;
   int fx, fy, fz; //Flex1,Flex2,Flex3
 } intercept;
 
+//GCRA
+GCRA arm;
+
 //GCRABASE
 GCRABASE base;
+int angle_buffer_1 = 100;
 int delay_val;
 
 //Switches
@@ -32,9 +36,10 @@ boolean current_mode = 0;
 boolean fx_switch = 0; //Felx1Switch
 boolean fy_switch = 0; //Felx2Switch
 boolean fz_switch = 0; //Felx3Switch
+int arm_mode = 0;
 
 //Switching Timers/Requisites
-boolean start = 1;
+boolean start = 1, wait_val_1 = 0, wait_val_2 = 0;
 unsigned long start_tick = 0;
 unsigned long ticker = 0;
 
@@ -47,7 +52,7 @@ void setup()
 #endif
 
 #ifdef dbug_aux
-  Serial.println("Mode,Flex1Switch,Flex2Switch,Flex3Switch,Time,Yaw,Pitch,Roll,Flex1,Flex2,Flex3");
+  Serial.println("Mode,ArmMode,Flex1Switch,Flex2Switch,Flex3Switch,Time,Yaw,Pitch,Roll,Flex1,Flex2,Flex3");
 #else
   Serial.println("Yaw,Pitch,Roll,Flex1,Flex2,Flex3");
 #endif
@@ -58,6 +63,19 @@ void setup()
   radio.setDataRate(RF24_2MBPS);
   radio.setAutoAck(1);
   radio.setCRCLength(RF24_CRC_8);
+
+  //GCRA
+  arm.cfg(1, 0, 5);
+  arm.servocfg(550, 2400, 550, 2200);
+  arm.init(100, 20, 25, 10, 50, 96, 15);
+
+  //RGB Led
+  pinMode(9, OUTPUT);
+  pinMode(10, OUTPUT);
+  pinMode(11, OUTPUT);
+  pinMode(12, OUTPUT);
+  rgbled(0);
+  digitalWrite(12, HIGH);
 }
 
 void loop()
@@ -74,6 +92,7 @@ recheck://Flag for goto command
 #ifdef dbug
 #ifdef dbug_aux
     Serial.print(current_mode); Serial.print(",");
+    Serial.print(arm_mode); Serial.print(",");
     Serial.print(fx_switch); Serial.print(",");
     Serial.print(fy_switch); Serial.print(",");
     Serial.print(fz_switch); Serial.print(",");
@@ -93,19 +112,19 @@ recheck://Flag for goto command
   }
 
   //Flex Emulated Switches
-  if (intercept.fx < 720) {
+  if (intercept.fx < 710) {
     fx_switch = 1;
-  } else {
+  } else if (intercept.fx > 780) {
     fx_switch = 0;
   }
-  if (intercept.fy < 710) {
+  if (intercept.fy < 680) {
     fy_switch = 1;
-  } else {
+  } else if (intercept.fy > 750) {
     fy_switch = 0;
   }
-  if (intercept.fz < 740) {
+  if (intercept.fz < 710) {
     fz_switch = 1;
-  } else {
+  } else if (intercept.fz > 780) {
     fz_switch = 0;
   }
 
@@ -130,10 +149,11 @@ recheck://Flag for goto command
     start = 1;
     start_tick = 0;
   }
-  if (current_mode) {
+
+  if (!current_mode) {
     mode1();
   } else {
-    mode2;
+    mode2();
   }
 
 }
@@ -141,29 +161,97 @@ recheck://Flag for goto command
 //Mode 1 Function
 void mode1()
 {
+  //Arm Part Mode Switching
+  if (fy_switch && !fz_switch && !wait_val_1)
+  {
+    wait_val_1 = 1;
+  }
+
+  if (wait_val_1 == 1)
+  {
+    if (!fy_switch && !fz_switch)
+    {
+      if (arm_mode < 6)
+      {
+        arm_mode++;
+      }
+      wait_val_1 = 0;
+    }
+  }
+
+  if (!fy_switch && fz_switch && !wait_val_2)
+  {
+    wait_val_2 = 1;
+  }
+
+  if (wait_val_2 == 1)
+  {
+    if (!fy_switch && !fz_switch)
+    {
+      if (arm_mode > 0)
+      {
+        arm_mode--;
+      }
+      wait_val_2 = 0;
+    }
+  }
+  
+  rgbled(arm_mode);
+  //Arm Part Switching
+  int temp;
+  if (!wait_val_1 && !wait_val_2)
+  {
+    switch (arm_mode)
+    {
+      case 1:
+
+        arm.actuate(waist, mapit(intercept.y, 1, -1, 0, 180));
+        break;
+
+      case 2:
+        temp = mapit(intercept.p, 1, -1, 40, 180);
+        arm.actuate(shoulder, temp);
+        arm.actuate(elbow, temp);
+        break;
+
+      case 3:
+        arm.actuate(elbow, mapit(intercept.p, 0.60, -0.90, 160, 40));
+        break;
+
+      case 4:
+        arm.actuate(wrist_p, mapit(intercept.p, 1, -1, 40, 180));
+        break;
+
+      case 5:
+        arm.actuate(wrist_r, mapit(intercept.r, 1, -1, 10, 170));
+        break;
+    }
+  }
+
 }
 
 //Mode 2 Function
 void mode2()
 {
-  if (intercept.p > 0.1)
+  rgbled(7);
+  if (intercept.r > 0.1)
   {
-    delay_val = mapit(intercept.p, 0.1, 1.5, 220, 50);
+    delay_val = mapit(intercept.r, 0.1, 1.5, 240, 0);
     base.move(left, delay_val);
   }
-  else if (intercept.p < -0.6)
+  else if (intercept.r < -0.6)
   {
-    delay_val = mapit(intercept.p, -0.6, -1.5, 220, 50);
+    delay_val = mapit(intercept.r, -0.6, -1.5, 240, 0);
     base.move(right, delay_val);
   }
-  else if (intercept.r > 0.5)
+  else if (intercept.p > 0.3)
   {
-    delay_val = mapit(intercept.r, 0.5, 1.5, 220, 50);
+    delay_val = mapit(intercept.p, 0.3, 1.5, 240, 0);
     base.move(backward, delay_val);
   }
-  else if (intercept.r < -0.5)
+  else if (intercept.p < -0.3)
   {
-    delay_val = mapit(intercept.r, -0.5, -1.5, 220, 50);
+    delay_val = mapit(intercept.p, -0.3, -1.5, 240, 0);
     base.move(forward, delay_val);
     Serial.println(delay_val);
   }
@@ -173,6 +261,53 @@ void mode2()
   }
 }
 
+//RGB Led Color Function (note:pwm limited to green only by servo library)
+void rgbled(int a)
+{
+  switch (a)
+  {
+    case 1:
+      analogWrite(9, 255);
+      analogWrite(11, 0);
+      analogWrite(10, 255); //green
+      break;
+    case 2:
+      analogWrite(9, 0);
+      analogWrite(11, 235);
+      analogWrite(10, 255); //orange
+      break;
+    case 3:
+      analogWrite(9, 255);
+      analogWrite(11, 255);
+      analogWrite(10, 0); //blue
+      break;
+    case 4:
+      analogWrite(9, 0);
+      analogWrite(11, 255);
+      analogWrite(10, 0); //purple
+      break;
+    case 5:
+      analogWrite(9, 0);
+      analogWrite(10, 0);
+      analogWrite(11, 255); //lime green
+      break;
+    case 6:
+      analogWrite(9, 0);
+      analogWrite(11, 255);
+      analogWrite(10, 255); //red
+      break;
+    case 7:
+      analogWrite(9, 255);
+      analogWrite(11, 0);
+      analogWrite(10, 0); //cyan
+      break;
+    default:
+      analogWrite(9, 255);
+      analogWrite(10, 255);
+      analogWrite(11, 255);
+      break;
+  }
+}
 //Custom Map Function
 float mapit(float x, float in_min, float in_max, float out_min, float out_max)
 {

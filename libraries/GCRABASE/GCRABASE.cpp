@@ -16,7 +16,7 @@ GCRABASE::GCRABASE(void)
 {
 	b_pin_x11=A0;
 	b_pin_x12=A1;
-	b_pin_pwm=11;
+	b_pin_pwm=13;
 	b_pin_x21=A3;
 	b_pin_x22=A4;
 	pinMode(b_pin_x11,OUTPUT);

@@ -7,7 +7,7 @@
 #######################################
 
 GCRA	KEYWORD1
-armpart	KEYWORD1
+arm	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)

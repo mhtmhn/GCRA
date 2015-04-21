@@ -128,7 +128,7 @@ recheck://Flag for goto command
     fz_switch = 0;
   }
 
-  //Mode Switching (folding index and middle finger simultaneously changes mode)
+  //Base / Arm Mode Switching (folding index and middle finger simultaneously changes mode)
   if (fy_switch && fz_switch)
   {
     if (start)
@@ -149,7 +149,7 @@ recheck://Flag for goto command
     start = 1;
     start_tick = 0;
   }
-
+  arm.actuate(tool,mapit(intercept.fx,720,790,90,0));
   if (!current_mode) {
     mode1();
   } else {

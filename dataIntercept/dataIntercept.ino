@@ -1,6 +1,6 @@
 //(c)S1NIS73R
-#define dbug
-#define dbug_aux
+//#define dbug
+//#define dbug_aux
 //Arduino
 #include <SPI.h>
 #include<Servo.h>
@@ -74,8 +74,33 @@ void setup()
   pinMode(10, OUTPUT);
   pinMode(11, OUTPUT);
   pinMode(12, OUTPUT);
+
+  //Start RGB Led
   rgbled(0);
   digitalWrite(12, HIGH);
+
+  //Notify - Waiting for connection
+  bool test;
+  do //Blink red to wait
+     //Continuously blink red if not connected
+  {
+    rgbled(6);
+    delay(100);
+    radio.openReadingPipe(1, address);
+    radio.startListening();
+    test = radio.available();
+    rgbled(0);
+    delay(100);
+  }
+  while (!test);
+  rgbled(1); //Blink green twice if connected
+  delay(100);
+  rgbled(0);
+  delay(100);
+  rgbled(1);
+  delay(100);
+  rgbled(0);
+  delay(100);
 }
 
 void loop()
@@ -149,7 +174,7 @@ recheck://Flag for goto command
     start = 1;
     start_tick = 0;
   }
-  arm.actuate(tool,mapit(intercept.fx,720,790,90,0));
+  arm.actuate(tool, mapit(intercept.fx, 720, 790, 90, 0));
   if (!current_mode) {
     mode1();
   } else {
@@ -195,7 +220,7 @@ void mode1()
       wait_val_2 = 0;
     }
   }
-  
+
   rgbled(arm_mode);
   //Arm Part Switching
   int temp;
@@ -236,22 +261,22 @@ void mode2()
   rgbled(7);
   if (intercept.r > 0.1)
   {
-    delay_val = mapit(intercept.r, 0.1, 1.5, 240, 0);
+    delay_val = mapit(intercept.r, 0.1, 1.5, 255, 0);
     base.move(left, delay_val);
   }
   else if (intercept.r < -0.6)
   {
-    delay_val = mapit(intercept.r, -0.6, -1.5, 240, 0);
+    delay_val = mapit(intercept.r, -0.6, -1.5, 255, 0);
     base.move(right, delay_val);
   }
   else if (intercept.p > 0.3)
   {
-    delay_val = mapit(intercept.p, 0.3, 1.5, 240, 0);
+    delay_val = mapit(intercept.p, 0.3, 1.5, 255, 0);
     base.move(backward, delay_val);
   }
   else if (intercept.p < -0.3)
   {
-    delay_val = mapit(intercept.p, -0.3, -1.5, 240, 0);
+    delay_val = mapit(intercept.p, -0.3, -1.5, 255, 0);
     base.move(forward, delay_val);
     Serial.println(delay_val);
   }

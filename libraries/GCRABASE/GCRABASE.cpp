@@ -47,7 +47,7 @@ void GCRABASE::move(int a, int b)
 	switch(base_direction)
 	{
 		case 0:
-		digitalWrite(b_pin_pwm,HIGH);
+		analogWrite(b_pin_pwm,255);
 		delayMicroseconds(50);
 		
 		digitalWrite(b_pin_x11,LOW);
@@ -61,7 +61,7 @@ void GCRABASE::move(int a, int b)
 		break;
 		
 		case 1:
-		digitalWrite(b_pin_pwm,HIGH);
+		analogWrite(b_pin_pwm,255);
 		delayMicroseconds(50);
 		
 		digitalWrite(b_pin_x11,HIGH);
@@ -75,7 +75,7 @@ void GCRABASE::move(int a, int b)
 		break;
 		
 		case 2:
-		digitalWrite(b_pin_pwm,HIGH);
+		analogWrite(b_pin_pwm,255);
 		delayMicroseconds(50);
 		
 		digitalWrite(b_pin_x11,HIGH);
@@ -89,7 +89,7 @@ void GCRABASE::move(int a, int b)
 		break;
 		
 		case 3:
-		digitalWrite(b_pin_pwm,HIGH);
+		analogWrite(b_pin_pwm,255);
 		delayMicroseconds(50);
 		
 		digitalWrite(b_pin_x11,LOW);
@@ -106,7 +106,7 @@ void GCRABASE::move(int a, int b)
 		switch(brake_factor)
 		{
 			case 0:
-			digitalWrite(b_pin_pwm,HIGH);
+			analogWrite(b_pin_pwm,255);
 			delayMicroseconds(50);
 		
 			digitalWrite(b_pin_x11,HIGH);
@@ -114,12 +114,12 @@ void GCRABASE::move(int a, int b)
 			digitalWrite(b_pin_x21,LOW);
 			digitalWrite(b_pin_x22,HIGH);
 			
-			digitalWrite(b_pin_pwm,LOW);
+			analogWrite(b_pin_pwm,0);
 			brake_factor=4;
 			break;
 			
 			case 1:
-			digitalWrite(b_pin_pwm,HIGH);
+			analogWrite(b_pin_pwm,255);
 			delayMicroseconds(50);
 		
 			digitalWrite(b_pin_x11,LOW);
@@ -127,12 +127,12 @@ void GCRABASE::move(int a, int b)
 			digitalWrite(b_pin_x21,HIGH);
 			digitalWrite(b_pin_x22,LOW);
 			
-			digitalWrite(b_pin_pwm,LOW);
+			analogWrite(b_pin_pwm,0);
 			brake_factor=4;
 			break;
 			
 			case 2:
-			digitalWrite(b_pin_pwm,HIGH);
+			analogWrite(b_pin_pwm,255);
 			delayMicroseconds(50);
 		
 			digitalWrite(b_pin_x11,LOW);
@@ -140,12 +140,12 @@ void GCRABASE::move(int a, int b)
 			digitalWrite(b_pin_x21,LOW);
 			digitalWrite(b_pin_x22,HIGH);
 			
-			digitalWrite(b_pin_pwm,LOW);
+			analogWrite(b_pin_pwm,0);
 			brake_factor=4;
 			break;
 			
 			case 3:
-			digitalWrite(b_pin_pwm,HIGH);
+			analogWrite(b_pin_pwm,255);
 			delayMicroseconds(50);
 		
 			digitalWrite(b_pin_x11,HIGH);
@@ -153,12 +153,12 @@ void GCRABASE::move(int a, int b)
 			digitalWrite(b_pin_x21,HIGH);
 			digitalWrite(b_pin_x22,LOW);
 			
-			digitalWrite(b_pin_pwm,LOW);
+			analogWrite(b_pin_pwm,0);
 			brake_factor=4;
 			break;
 			
 			case 4:
-			digitalWrite(b_pin_pwm,HIGH);
+			analogWrite(b_pin_pwm,255);
 			delayMicroseconds(50);
 		
 			digitalWrite(b_pin_x11,LOW);
@@ -166,7 +166,7 @@ void GCRABASE::move(int a, int b)
 			digitalWrite(b_pin_x21,LOW);
 			digitalWrite(b_pin_x22,LOW);
 		
-			digitalWrite(b_pin_pwm,LOW);
+			analogWrite(b_pin_pwm,0);
 			break;
 		}
 		break;

@@ -82,7 +82,7 @@ void setup()
   //Notify - Waiting for connection
   bool test;
   do //Blink red to wait
-     //Continuously blink red if not connected
+    //Continuously blink red if not connected
   {
     rgbled(6);
     delay(100);
@@ -240,7 +240,7 @@ void mode1()
         break;
 
       case 3:
-        arm.actuate(elbow, mapit(intercept.p, 0.60, -0.90, 160, 40));
+        arm.actuate(elbow, mapit(intercept.p, 1.2, -0.80, 160, 40));
         break;
 
       case 4:

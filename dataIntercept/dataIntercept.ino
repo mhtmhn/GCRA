@@ -65,9 +65,9 @@ void setup()
   radio.setCRCLength(RF24_CRC_8);
 
   //GCRA
-  arm.cfg(1, 0, 5);
+  arm.cfg(1, 0, 4);
   arm.servocfg(550, 2400, 550, 2200);
-  arm.init(100, 20, 25, 10, 50, 96, 15);
+  arm.init(100, 20, 24, 5, 50, 96, 15);
 
   //RGB Led
   pinMode(9, OUTPUT);
@@ -174,7 +174,7 @@ recheck://Flag for goto command
     start = 1;
     start_tick = 0;
   }
-  arm.actuate(tool, mapit(intercept.fx, 720, 790, 90, 0));
+  arm.actuate(tool, mapit(intercept.fx, 700, 790, 90, 0));
   if (!current_mode) {
     mode1();
   } else {
@@ -230,21 +230,21 @@ void mode1()
     {
       case 1:
 
-        arm.actuate(waist, mapit(intercept.y, 1, -1, 0, 180));
+        arm.actuate(waist, mapit(intercept.y, 1.3, -1.3, 30, 180));
         break;
 
       case 2:
-        temp = mapit(intercept.p, 1, -1, 40, 180);
+        temp = mapit(intercept.p, 1, -0.30, 30, 180);
         arm.actuate(shoulder, temp);
         arm.actuate(elbow, temp);
         break;
 
       case 3:
-        arm.actuate(elbow, mapit(intercept.p, 1.2, -0.80, 160, 40));
+        arm.actuate(elbow, mapit(intercept.p, 1.6, -0.30, 160, 30));
         break;
 
       case 4:
-        arm.actuate(wrist_p, mapit(intercept.p, 1, -1, 40, 180));
+        arm.actuate(wrist_p, mapit(intercept.p, 1.4, -0.30, 0, 160));
         break;
 
       case 5:

@@ -1,9 +1,13 @@
 //(c)S1NIS73R
 //#define dbug
-
+//#define dbug_aux
 //Arduino
 #include "Wire.h"
 #include <SPI.h>
+
+//ADC
+int d=0;
+int discard=5;  //Sets number of initial values to be discarded.
 
 //RF24 by TMRh20 https://tmrh20.github.io/RF24
 #include <RF24.h>
@@ -177,13 +181,16 @@ void loop()
 		dispatch.r=ypr[1];
 		
 		//Flex
+                for(d=0;d<discard;d++)
+                analogRead(A0);
 		dispatch.fx=analogRead(A0);
-		delayMicroseconds(100);
+                for(d=0;d<discard;d++)
+                analogRead(A1);
 		dispatch.fy=analogRead(A1);
-		delayMicroseconds(100);
+                for(d=0;d<discard;d++)
+                analogRead(A2);
 		dispatch.fz=analogRead(A2);
-		delayMicroseconds(100);
-		
+				
 		//nRF24L01+
 		radio.openWritingPipe(address);
 		radio.stopListening();
@@ -193,6 +200,11 @@ void loop()
 		Serial.print(dispatch.y); Serial.print(" ");
 		Serial.print(dispatch.p); Serial.print(" ");
 		Serial.println(dispatch.r);
+		#endif
+                #ifdef dbug_aux
+		Serial.print(dispatch.fx); Serial.print(" ");
+		Serial.print(dispatch.fy); Serial.print(" ");
+		Serial.println(dispatch.fz);
 		#endif
                 mpu.resetFIFO();
 	}
